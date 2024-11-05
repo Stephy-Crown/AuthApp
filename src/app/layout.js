@@ -12,6 +12,9 @@ import {
 } from "@clerk/nextjs";
 import Loader from "./components/Loader";
 
+// Retrieve the Clerk publishable key from environment variables
+const clerkPublishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
   variable: "--font-geist-sans",
@@ -29,8 +32,11 @@ export const metadata = {
 };
 
 export default function RootLayout({ children }) {
+  if (!clerkPublishableKey) {
+    throw new Error("Clerk publishable key is missing");
+  }
   return (
-    <ClerkProvider>
+    <ClerkProvider publishableKey={clerkPublishableKey}>
       <html lang="en">
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}
