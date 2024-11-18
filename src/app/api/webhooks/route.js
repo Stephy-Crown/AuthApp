@@ -1,3 +1,6 @@
+import { createOrUpdateUser, deleteUser } from "@/lib/actions/user";
+import { connect } from "@/lib/mongodb/mongoose";
+
 const { Webhook } = require("svix");
 const { headers } = require("next/headers");
 const { WebhookEvent } = require("@clerk/nextjs/server");
@@ -22,9 +25,7 @@ export async function POST(req) {
 
   // If there are no headers, error out
   if (!svix_id || !svix_timestamp || !svix_signature) {
-    return new Response("Error: Missing Svix headers", {
-      status: 400,
-    });
+    return new Response("Error: Missing Svix headers", { status: 400 });
   }
 
   // Get body
@@ -42,18 +43,44 @@ export async function POST(req) {
     });
   } catch (err) {
     console.error("Error: Could not verify webhook:", err);
-    return new Response("Error: Verification error", {
-      status: 400,
-    });
+    return new Response("Error: Verification error", { status: 400 });
   }
 
-  // Do something with payload
-  // For this guide, log payload to console
+  // Process the event
   const { id } = evt.data;
   const eventType = evt.type;
-  console.log(` ${eventType}`);
+  console.log(`${eventType}`);
   console.log(`Received webhook with ID ${id} and event type of ${eventType}`);
   console.log("Webhook payload:", body);
+
+  if (eventType === "user.created" || eventType === "user.updated") {
+    const { first_name, last_name, img_url, email_addresses, username } =
+      evt.data;
+    try {
+      await createOrUpdateUser(
+        id,
+        first_name,
+        last_name,
+        img_url,
+        email_addresses,
+        username
+      );
+      return new Response("User is created or updated", { status: 200 });
+    } catch (error) {
+      console.log("Error creating or updating user:", error);
+      return new Response("Error occurred", { status: 400 });
+    }
+  }
+
+  if (eventType === "user.deleted") {
+    try {
+      await deleteUser(id);
+      return new Response("User is deleted", { status: 200 });
+    } catch (error) {
+      console.log("Error deleting user:", error);
+      return new Response("Error occurred", { status: 400 });
+    }
+  }
 
   return new Response("Webhook received", { status: 200 });
 }
