@@ -1,7 +1,5 @@
 import { connect } from "../mongodb/mongoose"; // Ensure this file connects to your MongoDB
-
-// Example User model schema import
-import { User } from "../models/user.model"; // Ensure you import your User model correctly
+import { User } from "../models/user.model"; // Correctly import your User model
 
 // Function to create or update a user
 export const createOrUpdateUser = async (
@@ -24,7 +22,7 @@ export const createOrUpdateUser = async (
           firstName: first_name,
           lastName: last_name,
           avatar: image_url,
-          email: email_addresses[0].email, // Ensure email_addresses array is well-formed
+          email: email_addresses[0]?.email, // Use optional chaining to safely access email
           username: username,
         },
       },
@@ -34,7 +32,7 @@ export const createOrUpdateUser = async (
     return user;
   } catch (error) {
     console.error("Error creating or updating user: ", error);
-    throw error; // Optionally rethrow the error to handle it elsewhere
+    throw error;
   }
 };
 
@@ -49,6 +47,6 @@ export const deleteUser = async (id) => {
     console.log("User successfully deleted");
   } catch (error) {
     console.error("Error deleting user: ", error);
-    throw error; // Optionally rethrow the error to handle it elsewhere
+    throw error;
   }
 };
