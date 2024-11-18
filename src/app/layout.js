@@ -27,7 +27,7 @@ const geistMono = localFont({
 });
 
 export const metadata = {
-  title: " Next Auth App",
+  title: " AuthApp",
   description: "Next Auth App wth clerk and  mongoDB",
 };
 
