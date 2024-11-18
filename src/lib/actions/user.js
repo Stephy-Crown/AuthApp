@@ -28,7 +28,7 @@ export const createOrUpdateUser = async (
       },
       { new: true, upsert: true } // Return the updated document and create one if not found
     );
-
+    console.log("User created or updated successfully:", user); // Add detailed log
     return user;
   } catch (error) {
     console.error("Error creating or updating user: ", error);
