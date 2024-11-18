@@ -1,5 +1,5 @@
 import { connect } from "../mongodb/mongoose"; // Ensure this file connects to your MongoDB
-import { User } from "../models/user.model"; // Correctly import your User model
+import User from "../models/user.model"; // Correctly import your User model
 
 // Function to create or update a user
 export const createOrUpdateUser = async (
@@ -43,7 +43,7 @@ export const deleteUser = async (id) => {
     await connect();
 
     // Use findOneAndDelete to remove the user document
-    await User.findOneAndDelete({ clerkId: id });
+    await User.findOneAndRemove({ clerkId: id });
     console.log("User successfully deleted");
   } catch (error) {
     console.error("Error deleting user: ", error);

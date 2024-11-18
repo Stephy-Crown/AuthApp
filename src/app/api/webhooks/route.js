@@ -1,5 +1,6 @@
 import { createOrUpdateUser, deleteUser } from "@/lib/actions/user";
-import { connect } from "@/lib/mongodb/mongoose";
+
+// import { connect } from "@/lib/mongodb/mongoose";
 
 const { Webhook } = require("svix");
 const { headers } = require("next/headers");
