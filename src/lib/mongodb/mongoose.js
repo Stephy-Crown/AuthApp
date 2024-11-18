@@ -11,10 +11,10 @@ export const connect = async () => {
   try {
     await mongoose.connect(process.env.MONGODB_URI, {
       dbName: "AuthApp",
-      userNewUrlParser: true,
+      useNewUrlParser: true,
       useUnifiedTopology: true,
     });
-    console.log(" MongoDB already connected");
+    console.log(" MongoDB connected");
     initialized = true;
   } catch (e) {
     console.log(" MongoDB connection error: " + e.message);
