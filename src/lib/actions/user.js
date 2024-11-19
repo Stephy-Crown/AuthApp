@@ -114,10 +114,11 @@
 //   }
 // };
 
+
+
 import { connect } from "../mongodb/mongoose";
 import User from "../models/user.model";
 
-// Function to create or update a user
 export const createOrUpdateUser = async (
   id,
   first_name,
@@ -127,100 +128,66 @@ export const createOrUpdateUser = async (
   username
 ) => {
   try {
-    // Detailed logging of incoming data
-    console.log("Incoming data for user creation/update:", {
+    await connect();
+
+    // Log the exact data we receive
+    console.log("Received data:", {
       id,
       first_name,
       last_name,
       image_url,
-      email_addresses: JSON.stringify(email_addresses), // Explicitly stringify to see full structure
-      username,
+      email_addresses,
+      username
     });
 
-    // Validate required fields
-    if (!id) throw new Error("Clerk ID is required");
+    // Get the email directly
+    const email = email_addresses?.[0]?.emailAddress || '';
 
-    // Validate email_addresses structure
-    if (!email_addresses || !Array.isArray(email_addresses)) {
-      console.error(
-        "email_addresses is not in expected format:",
-        email_addresses
-      );
-      throw new Error("Invalid email_addresses format");
-    }
-
-    // Extract primary email with fallback
-    const primaryEmail = email_addresses[0]?.email || null;
-    if (!primaryEmail) {
-      console.warn("No primary email found in email_addresses array");
-    }
-
-    // Validate image_url
-    if (!image_url) {
-      console.warn("No image_url provided");
-    }
-
-    await connect();
-
-    // Create the update object with null checks
     const updateData = {
-      $set: {
-        clerkId: id,
-        firstName: first_name || null,
-        lastName: last_name || null,
-        avatar: image_url || null,
-        email: primaryEmail,
-        userName: username || null,
-      },
+      clerkId: id,
+      firstName: first_name,
+      lastName: last_name,
+      userName: username,
+      email: email,           // Add email explicitly
+      avatar: image_url       // Add avatar explicitly
     };
 
-    console.log("Update data being sent to MongoDB:", updateData);
+    // Log what we're trying to save
+    console.log("Trying to save:", updateData);
 
-    const user = await User.findOneAndUpdate({ clerkId: id }, updateData, {
-      new: true,
-      upsert: true,
-      runValidators: true, // Enable mongoose validation
-    });
+    const user = await User.findOneAndUpdate(
+      { clerkId: id },
+      updateData,            // Remove $set
+      { 
+        new: true, 
+        upsert: true 
+      }
+    );
 
-    console.log("User saved to database:", JSON.stringify(user, null, 2));
+    console.log("Saved user:", user);
     return user;
+
   } catch (error) {
-    console.error("Detailed error in createOrUpdateUser:", {
-      message: error.message,
-      stack: error.stack,
-      data: {
-        id,
-        email_addresses,
-        image_url,
-      },
-    });
+    console.error("Error:", error);
     throw error;
   }
 };
 
-// Function to delete a user by their clerkId
 export const deleteUser = async (id) => {
   try {
     await connect();
 
-    const deletedUser = await User.findOneAndDelete({ clerkId: id });
+    const deletedUser = await User.findOneAndDelete({ clerkId: id }); // Changed from findOneAndRemove
 
     if (!deletedUser) {
-      console.log("No user found with clerkId:", id);
+      console.log("No user found with this ID");
       return null;
     }
 
-    console.log(
-      "Successfully deleted user:",
-      JSON.stringify(deletedUser, null, 2)
-    );
+    console.log("User successfully deleted");
     return deletedUser;
   } catch (error) {
-    console.error("Error in deleteUser:", {
-      message: error.message,
-      stack: error.stack,
-      clerkId: id,
-    });
-    throw error;
+    console.error("Error deleting user: ", error);
+    throw error; // Throw the error so the calling function can handle it
   }
 };
