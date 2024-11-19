@@ -114,80 +114,58 @@
 //   }
 // };
 
-
-
 import { connect } from "../mongodb/mongoose";
 import User from "../models/user.model";
 
-export const createOrUpdateUser = async (
-  id,
-  first_name,
-  last_name,
-  image_url,
-  email_addresses,
-  username
-) => {
+export const createOrUpdateUser = async (userData) => {
   try {
     await connect();
 
-    // Log the exact data we receive
-    console.log("Received data:", {
-      id,
-      first_name,
-      last_name,
-      image_url,
-      email_addresses,
-      username
-    });
+    // Log the exact data structure from Clerk
+    console.log("Raw userData from Clerk:", JSON.stringify(userData, null, 2));
 
-    // Get the email directly
-    const email = email_addresses?.[0]?.emailAddress || '';
+    // Extract email address - checking all possible paths
+    const emailAddress =
+      userData.emailAddresses?.[0]?.emailAddress || // newer Clerk format
+      userData.email_addresses?.[0]?.email || // older Clerk format
+      userData.email || // direct email
+      "";
+
+    // Extract image URL - checking all possible paths
+    const avatarUrl =
+      userData.imageUrl || // newer Clerk format
+      userData.image_url || // older Clerk format
+      userData.avatar || // direct avatar
+      "";
+
+    console.log("Extracted email:", emailAddress);
+    console.log("Extracted avatar:", avatarUrl);
 
     const updateData = {
-      clerkId: id,
-      firstName: first_name,
-      lastName: last_name,
-      userName: username,
-      email: email,           // Add email explicitly
-      avatar: image_url       // Add avatar explicitly
+      clerkId: userData.id || userData.clerkId,
+      firstName: userData.firstName || userData.first_name,
+      lastName: userData.lastName || userData.last_name,
+      userName: userData.username || userData.userName,
+      email: emailAddress,
+      avatar: avatarUrl,
     };
 
-    // Log what we're trying to save
-    console.log("Trying to save:", updateData);
+    // Log what we're about to save
+    console.log("About to save:", JSON.stringify(updateData, null, 2));
 
     const user = await User.findOneAndUpdate(
-      { clerkId: id },
-      updateData,            // Remove $set
-      { 
-        new: true, 
-        upsert: true 
+      { clerkId: updateData.clerkId },
+      updateData,
+      {
+        new: true,
+        upsert: true,
       }
     );
 
-    console.log("Saved user:", user);
+    console.log("Saved user:", JSON.stringify(user.toObject(), null, 2));
     return user;
-
   } catch (error) {
-    console.error("Error:", error);
+    console.error("Error in createOrUpdateUser:", error);
     throw error;
-  }
-};
-
-export const deleteUser = async (id) => {
-  try {
-    await connect();
-
-    const deletedUser = await User.findOneAndDelete({ clerkId: id }); // Changed from findOneAndRemove
-
-    if (!deletedUser) {
-      console.log("No user found with this ID");
-      return null;
-    }
-
-    console.log("User successfully deleted");
-    return deletedUser;
-  } catch (error) {
-    console.error("Error deleting user: ", error);
-    throw error; // Throw the error so the calling function can handle it
   }
 };
