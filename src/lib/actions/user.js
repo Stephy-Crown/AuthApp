@@ -80,8 +80,8 @@ export const createOrUpdateUser = async (
           firstName: first_name,
           lastName: last_name,
           avatar: image_url,
-          email: email_addresses[0]?.email,
-          userName: username, // Note: changed to match your schema
+          email: email_addresses[0].email,
+          username: username, // Note: changed to match your schema
         },
       },
       { new: true, upsert: true }
