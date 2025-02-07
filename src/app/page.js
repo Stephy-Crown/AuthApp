@@ -1,11 +1,12 @@
+import Image from "next/image";
 export default function Home() {
   return (
     <div className="px-4 py-12 max-w-4xl mx-auto">
       <h1 className="text-4xl font-extrabold mb-8 text-slate-800 text-center">
-        Welcome to Our Next Auth Application
+        Welcome to My Next.js Auth Application
       </h1>
       <div className="bg-white p-6 rounded-lg flex flex-col items-center">
-        <img
+        <Image
           src="https://kivuto.com/wp-content/uploads/2021/06/User_Authentication_Best_Practices_Image.jpg"
           alt="Authentication Illustration"
           className="rounded-lg h-96 w-full object-cover mb-6"
@@ -17,11 +18,11 @@ export default function Home() {
             applications.
           </p>
           <p className="text-gray-700 mb-4">
-            We have integrated Clerk for seamless user authentication, providing
-            a secure and user-friendly login experience.
+            I integrated Clerk for seamless user authentication, providing a
+            secure and user-friendly login experience.
           </p>
           <p className="text-gray-700 mb-4">
-            Our backend is powered by MongoDB, a NoSQL database, and we use
+            The backend is powered by MongoDB, a NoSQL database, and I used
             Mongoose for elegant MongoDB object modeling in Node.js.
           </p>
           <p className="text-gray-700 mb-4">
@@ -36,7 +37,7 @@ export default function Home() {
           <ul className="text-gray-700 mb-4 space-y-2">
             <li>
               <a
-                href="https://github.com/sahandghavidel/next-auth-app"
+                href="https://github.com/Stephy-Crown/AuthApp"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center text-blue-500 hover:underline"
